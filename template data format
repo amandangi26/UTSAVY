@@ -1,0 +1,380 @@
+
+# UTSAVY Data Payload Report: Parent App to External Template Communication
+
+## Overview
+
+UTSAVY sends data to external Vercel-hosted template iframes through two primary channels:
+1. **URL Parameters** (initial load)
+2. **PostMessage API** (runtime communication)
+
+## 1. URL Parameters Structure
+
+### Royal Wedding Template Format
+For templates with `component_name === 'RoyalWeddingTemplate'`:
+
+**Individual Parameters:**
+```
+?eventId=string
+&guestId=string  
+&guestStatus=pending|viewed|accepted|submitted
+&groomName=string
+&brideName=string
+&groomCity=string
+&brideCity=string
+&weddingDate=YYYY-MM-DD
+&weddingTime=HH:MM
+&groomFirst=true|false
+&couplePhoto=url
+&venueName=string
+&venueAddress=string
+&venueMapLink=url
+&guestName=string
+&hasResponded=true|false
+&accepted=true|false
+```
+
+**JSON-Encoded Complex Data:**
+```
+&brideFamily=urlencoded(JSON)
+&groomFamily=urlencoded(JSON)  
+&photos=urlencoded(JSON)
+&events=urlencoded(JSON)
+&contacts=urlencoded(JSON)
+&rsvpConfig=urlencoded(JSON)
+&customFields=urlencoded(JSON)
+&existingRsvpData=urlencoded(JSON)
+```
+
+### External Template Format  
+For external templates (vercel.app, netlify.app):
+
+**Comprehensive JSON Data Parameter:**
+```
+?data=urlencoded(JSON)
+```
+
+**Plus Individual Key Parameters:**
+```
+&eventId=string
+&guestId=string
+&guestName=string
+&guestStatus=string
+&eventName=string
+&brideName=string
+&groomName=string
+&weddingDate=string
+&weddingTime=string
+&venueName=string
+```
+
+## 2. URL Parameter Data Structures
+
+### Family Data Structure
+```typescript
+{
+  title: string; // "Bride's Family" | "Groom's Family"
+  familyPhoto: string;
+  parentsNames: string;
+  members: Array<{
+    id: string;
+    name: string;
+    relation: string;
+    photo: string;
+    description: string;
+  }>;
+}
+```
+
+### Photo Gallery Structure  
+```typescript
+Array<{
+  id: string;
+  url: string;
+  title: string;
+}>
+```
+
+### Events Structure
+```typescript
+Array<{
+  id: string;
+  name: string;
+  date: string; // YYYY-MM-DD
+  time: string; // HH:MM
+  venue: string;
+  description: string;
+  mapLink: string;
+}>
+```
+
+### Contacts Structure
+```typescript
+Array<{
+  id: string;
+  name: string;
+  phone: string;
+  relation: string;
+}>
+```
+
+### RSVP Configuration
+```typescript
+{
+  type: 'simple' | 'detailed';
+  // Additional config properties
+}
+```
+
+### Custom RSVP Fields
+```typescript
+Array<{
+  id: string;
+  type: 'text' | 'select' | 'radio' | 'checkbox';
+  label: string;
+  required: boolean;
+  options?: string[]; // for select/radio
+}>
+```
+
+## 3. PostMessage Communication
+
+### Primary Message: `INVITATION_LOADED`
+Sent after iframe loads with comprehensive invitation data:
+
+```typescript
+{
+  type: 'INVITATION_LOADED',
+  data: {
+    // RSVP Contract Fields (top level)
+    eventId: string;
+    guestId: string;
+    status: 'pending' | 'viewed' | 'accepted' | 'submitted';
+    showAcceptButton: boolean;
+    showSubmitButton: boolean;
+    showEditButton: boolean;
+    rsvpFields: CustomField[];
+    existingRsvpData: Record;
+    wishesEnabled: boolean;
+
+    // Event Details
+    eventDetails: {
+      // Full event.details object from database
+      bride_name: string;
+      groom_name: string;
+      wedding_date: string;
+      wedding_time: string;
+      venue_name: string;
+      venue_address: string;
+      venue_map_link?: string;
+      couple_image?: string;
+      groom_first: boolean;
+      bride_family?: FamilyData;
+      groom_family?: FamilyData;
+      photos?: PhotoData[];
+      events?: EventData[];
+      contacts?: ContactData[];
+      // ... all other event detail fields
+    };
+
+    guestAccess: {
+      // Guest access permissions data
+    };
+
+    // Platform Metadata
+    platformData: {
+      guestName: string;
+      actualStatus: string;
+      hasCustomFields: boolean;
+      allowEdit: boolean;
+    };
+  }
+}
+```
+
+### Secondary Message: `WEDDING_DATA_READY` (External Templates Only)
+Sent 1 second after `INVITATION_LOADED` for external templates:
+
+```typescript
+{
+  type: 'WEDDING_DATA_READY',
+  eventId: string;
+  guestId: string; 
+  eventName: string;
+  guestName: string;
+  brideName: string;
+  groomName: string;
+  weddingDate: string;
+  weddingTime: string;
+  venueName: string;
+  venueAddress: string;
+  guestStatus: 'pending' | 'viewed' | 'accepted' | 'submitted';
+  eventDetails: EventDetailsObject;
+  wishesEnabled: boolean;
+  rsvpData: Record;
+  hasAccepted: boolean;
+}
+```
+
+## 4. Complete JSON Sample Payload
+
+### External Template Comprehensive Data Parameter
+```json
+{
+  "eventId": "evt_12345",
+  "guestId": "guest_67890", 
+  "guestName": "John Doe",
+  "guestStatus": "pending",
+  "eventName": "Wedding Invitation",
+
+  "couple": {
+    "brideName": "Priya Sharma",
+    "groomName": "Rahul Kumar", 
+    "brideCity": "Mumbai",
+    "groomCity": "Delhi",
+    "coupleTagline": "Two hearts becoming one",
+    "groomFirst": false,
+    "couplePhoto": "https://example.com/couple.jpg"
+  },
+
+  "wedding": {
+    "date": "2024-02-14",
+    "time": "18:00", 
+    "venue": {
+      "name": "Grand Palace Hotel",
+      "address": "123 Wedding Street, Mumbai",
+      "mapLink": "https://maps.google.com/..."
+    }
+  },
+
+  "events": [
+    {
+      "id": "event-1",
+      "name": "Mehendi Ceremony", 
+      "date": "2024-02-12",
+      "time": "15:00",
+      "venue": "Bride's Home",
+      "description": "Traditional henna ceremony",
+      "mapLink": "https://maps.google.com/..."
+    },
+    {
+      "id": "event-2", 
+      "name": "Sangam",
+      "date": "2024-02-13",
+      "time": "19:00", 
+      "venue": "Community Hall",
+      "description": "Music and dance celebration",
+      "mapLink": "https://maps.google.com/..."
+    }
+  ],
+
+  "family": {
+    "brideFamily": {
+      "title": "Bride's Family",
+      "members": [
+        {
+          "id": "bride-family-1",
+          "name": "Mr. Rajesh Sharma", 
+          "relation": "Father",
+          "photo": "https://example.com/father.jpg",
+          "description": "Father of the bride"
+        },
+        {
+          "id": "bride-family-2",
+          "name": "Mrs. Sunita Sharma",
+          "relation": "Mother", 
+          "photo": "https://example.com/mother.jpg",
+          "description": "Mother of the bride"
+        }
+      ]
+    },
+    "groomFamily": {
+      "title": "Groom's Family",
+      "members": [
+        {
+          "id": "groom-family-1", 
+          "name": "Mr. Suresh Kumar",
+          "relation": "Father",
+          "photo": "https://example.com/groom-father.jpg", 
+          "description": "Father of the groom"
+        }
+      ]
+    }
+  },
+
+  "photos": [
+    {
+      "id": "photo-1",
+      "url": "https://example.com/photo1.jpg",
+      "title": "Engagement Photo",
+      "description": "Beautiful engagement moment"
+    },
+    {
+      "id": "photo-2", 
+      "url": "https://example.com/photo2.jpg",
+      "title": "Pre-wedding Shoot",
+      "description": "Romantic pre-wedding photography"
+    }
+  ],
+
+  "contacts": [
+    {
+      "id": "contact-1",
+      "name": "Rajesh Sharma", 
+      "phone": "+91-9876543210",
+      "relation": "Father of Bride"
+    },
+    {
+      "id": "contact-2",
+      "name": "Suresh Kumar",
+      "phone": "+91-9876543211", 
+      "relation": "Father of Groom"
+    }
+  ],
+
+  "rsvpConfig": {
+    "type": "detailed"
+  },
+
+  "customFields": [
+    {
+      "id": "dietary",
+      "type": "select", 
+      "label": "Dietary Preferences",
+      "required": true,
+      "options": ["Vegetarian", "Non-Vegetarian", "Vegan", "Jain"]
+    },
+    {
+      "id": "attendance",
+      "type": "checkbox",
+      "label": "Events Attending", 
+      "required": false,
+      "options": ["Mehendi", "Sangam", "Wedding", "Reception"]
+    }
+  ],
+
+  "existingRsvpData": {
+    "dietary": "Vegetarian",
+    "attendance": ["Wedding", "Reception"]
+  },
+
+  "wishesEnabled": true,
+  "templateConfig": {}
+}
+```
+
+## 5. Data Flow Summary
+
+1. **Initial Load**: Template receives URL parameters with both comprehensive JSON data and individual key parameters
+2. **Runtime**: Template receives `INVITATION_LOADED` postMessage with complete invitation data structure  
+3. **External Templates**: Additionally receive `WEDDING_DATA_READY` postMessage with simplified data format
+4. **User Interactions**: Template sends postMessages back to parent for RSVP updates, wish submissions, etc.
+
+## 6. Key Considerations
+
+- **ID Consistency**: Uses `custom_event_id`/`custom_guest_id` when available, falls back to database IDs
+- **Status Logic**: Guest status calculated as `pending` → `viewed` → `accepted` → `submitted` 
+- **Backward Compatibility**: Multiple data formats ensure compatibility with different template versions
+- **Security**: All postMessage communication includes origin validation
+- **Reliability**: Messages sent with retry logic and multiple attempts
+
+**Template developers should primarily consume data from the `INVITATION_LOADED` postMessage as it contains the most complete and structured data format.**
