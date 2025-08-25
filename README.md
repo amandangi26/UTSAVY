@@ -268,7 +268,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### Maintainers
     - **Lead Developer**: [Vasudev Ai Team](mailto:your.email@example.com)
-- **UI/UX Designer**: [Designer Name](mailto:designer@example.com)
+- **UI/UX Designer**: [Designer Name](mailto:info@vasudev.online)
 
 ### Support Channels
 - 📧 **Email**: support@utsavy.com
