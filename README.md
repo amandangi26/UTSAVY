@@ -267,19 +267,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Contact & Support
 
 ### Maintainers
-    - **Lead Developer**: [Vasudev Ai Team](mailto:your.email@example.com)
+    - **Lead Developer**: [Vasudev Ai Team](mailto:your.email@example.com),(amandangi950@gmail.com)
 - **UI/UX Designer**: [Designer Name](mailto:info@vasudev.online)
 
 ### Support Channels
 - 📧 **Email**: support@utsavy.com
-- 💬 **Discord**: [Join our community](https://discord.gg/utsavy)
-- 🐛 **Issues**: [GitHub Issues](https://github.com/your-org/utsavy/issues)
-- 📖 **Documentation**: [docs.utsavy.com](https://docs.utsavy.com)
+- 💬 **Discord**: [Join our community](https://discord.com/invite/e5uPQDXSSk)
+
 
 ### Getting Help
-1. Check existing [GitHub Issues](https://github.com/your-org/utsavy/issues)
-2. Search [documentation](https://docs.utsavy.com)
-3. Join our [Discord community](https://discord.gg/utsavy)
+3. Join our [Discord community](https://discord.com/invite/e5uPQDXSSk)
 4. Create a new issue with detailed information
 
 ## 🎯 Roadmap
@@ -304,6 +301,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
   **Built with ❤️ by the UTSAVY Team X Vasudev Ai**
 
-[Website](https://www.vasudev.online/) X [Website](https://utsavy.in) • [Documentation](https://github.com/amandangi26/UTSAVY/edit/main/README.md) • [Support](mailto:support@utsavy.com)
+[Website](https://www.vasudev.online/) X [Website](https://utsavy.in) • [Documentation](https://github.com/amandangi26/UTSAVY/edit/main/README.md) • [Support](mailto:info@vasudev.online), amandangi950@gmail.com
 
 </div>
