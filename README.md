@@ -304,6 +304,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
   **Built with ❤️ by the UTSAVY Team X Vasudev Ai**
 
-[Website](https://utsavy.com) • [Documentation](https://docs.utsavy.com) • [Support](mailto:support@utsavy.com)
+[Website](https://www.vasudev.online/) X [Website](https://utsavy.in) • [Documentation](https://github.com/amandangi26/UTSAVY/edit/main/README.md) • [Support](mailto:support@utsavy.com)
 
 </div>
